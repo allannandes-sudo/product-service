@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth") // Exige autenticação para todas as rotas
+@SecurityRequirement(name = "bearerAuth") 
 public class ProductController {
 
     private final ProductService productService;
@@ -61,6 +62,13 @@ public class ProductController {
     ) {
         ProductResponse updatedProduct = productService.updateProductByName(name, productUpdateRequest);
         return ResponseEntity.ok(updatedProduct);
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String query) {
+        List<ProductResponse> products = productService.searchProducts(query);
+        return ResponseEntity.ok(products);
     }
 
 

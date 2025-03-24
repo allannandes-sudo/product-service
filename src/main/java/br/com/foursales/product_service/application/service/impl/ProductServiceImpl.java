@@ -8,7 +8,9 @@ import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
 import br.com.foursales.product_service.infrastructure.persistence.entity.ProductEntity;
 import br.com.foursales.product_service.infrastructure.persistence.repository.ProductRepository;
 import br.com.foursales.product_service.infrastructure.persistence.repository.mapper.ProductMapper;
+import br.com.foursales.product_service.infrastructure.search.service.ProductSearchService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,12 +18,14 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
     private final ProductMapper productMapper;
+    private final ProductSearchService productSearchService; //
 
     @Override
     public List<ProductResponse> getAllProducts() {
@@ -59,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         productEntity = repository.save(productEntity);
-
+        productSearchService.indexProduct(productEntity);
         return new ProductCreateResponse(
                 productMapper.toDomain(productEntity),
                 atualizado ? "Produto já existia. Estoque e preço atualizados!" : "Produto cadastrado com sucesso!"
@@ -69,7 +73,9 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteProduct(Long id) {
         repository.deleteById(id);
+        productSearchService.deleteProduct(id);
     }
+
 
 
     @Override
@@ -88,8 +94,13 @@ public class ProductServiceImpl implements ProductService {
         }
 
         ProductEntity updatedProduct = repository.save(product);
+        productSearchService.indexProduct(updatedProduct);
         return productMapper.toDomain(updatedProduct);
     }
 
+    @Override
+    public List<ProductResponse> searchProducts(String query) {
+        return productSearchService.searchProducts(query);
+    }
 
 }
