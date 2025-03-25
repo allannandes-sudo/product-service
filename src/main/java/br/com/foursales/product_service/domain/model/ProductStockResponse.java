@@ -9,13 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductUpdateRequest {
-    private String category;
+public class ProductStockResponse {
+    private Long id;
     private Double price;
     private Integer stock;
-
-    public ProductUpdateRequest(Integer stock) {
-        this.stock = stock;
-    }
 }
-

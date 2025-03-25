@@ -1,7 +1,7 @@
 package br.com.foursales.product_service.infrastructure.search.service;
 
 import br.com.foursales.product_service.domain.model.ProductResponse;
-import br.com.foursales.product_service.infrastructure.persistence.entity.ProductEntity;
+import br.com.foursales.product_service.infrastructure.persistence.repository.entity.ProductEntity;
 import br.com.foursales.product_service.infrastructure.search.ProductDocument;
 import br.com.foursales.product_service.infrastructure.search.repository.ProductSearchRepository;
 import lombok.RequiredArgsConstructor;

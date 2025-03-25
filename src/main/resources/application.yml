@@ -29,11 +29,26 @@ spring:
     username: elastic
     password: changeme
 
-
   kafka:
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: localhost:9092
+    producer:
+      retries: 5
+      retry-backoff-ms: 300
+      acks: all
+      batch-size: 16384
+      linger-ms: 50
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: '*'
     consumer:
       group-id: product-service-group
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
 
 jwt:
   secret: MINHA_CHAVE_SECRETA_AQUI_UMA_STRING_GRANDE_E_SEGURA

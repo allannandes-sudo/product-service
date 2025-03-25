@@ -4,6 +4,7 @@ import br.com.foursales.product_service.application.service.ProductService;
 import br.com.foursales.product_service.domain.model.ProductCreateResponse;
 import br.com.foursales.product_service.domain.model.ProductRequest;
 import br.com.foursales.product_service.domain.model.ProductResponse;
+import br.com.foursales.product_service.domain.model.ProductStockResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/products")
@@ -71,5 +74,17 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+
+    @GetMapping("/stock-check")
+    public ResponseEntity<Map<Long, ProductStockResponse>> checkStock(@RequestParam List<Long> productIds) {
+        Map<Long, ProductStockResponse> stockStatus = productService.checkStock(productIds);
+        return ResponseEntity.ok(stockStatus);
+    }
+
+    @PutMapping("/update-stock")
+    public ResponseEntity<Void> updateStock(@RequestBody Map<Long, Integer> stockUpdates) {
+        productService.updateStock(stockUpdates);
+        return ResponseEntity.ok().build();
+    }
 
 }

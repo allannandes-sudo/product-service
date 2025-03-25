@@ -1,4 +1,4 @@
-package br.com.foursales.product_service.infrastructure.persistence.entity;
+package br.com.foursales.product_service.infrastructure.persistence.repository.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;

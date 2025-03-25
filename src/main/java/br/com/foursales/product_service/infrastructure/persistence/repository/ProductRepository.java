@@ -1,6 +1,7 @@
 package br.com.foursales.product_service.infrastructure.persistence.repository;
 
-import br.com.foursales.product_service.infrastructure.persistence.entity.ProductEntity;
+
+import br.com.foursales.product_service.infrastructure.persistence.repository.entity.ProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
