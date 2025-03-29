@@ -8,6 +8,8 @@ import br.com.foursales.product_service.domain.model.ProductStockResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
 import br.com.foursales.product_service.web.controller.swagger.ProductControllerDoc;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,10 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -46,7 +50,11 @@ public class ProductController implements ProductControllerDoc {
     @PostMapping
     public ResponseEntity<ProductCreateResponse> createProduct(@RequestBody ProductRequest productRequest) {
         var response = productService.createProduct(productRequest);
-        return ResponseEntity.ok(response);
+        URI location = URI.create("/api/products/" + response.getProductResponse().getId());
+        log.info("Criando produto :{} , no PATH: {}, ", response, location);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .location(location)
+                .body(response);
     }
 
     @DeleteMapping("/{productId}")

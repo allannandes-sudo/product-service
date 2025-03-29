@@ -17,22 +17,6 @@ import java.lang.annotation.Target;
 
 
 @ApiResponse(
-        responseCode = "200",
-        description = "OK. A solicitação foi bem-sucedida.",
-        content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema = @Schema(implementation = Object.class) // Adjust the schema as needed
-        )
-)
-@ApiResponse(
-        responseCode = "201",
-        description = "Created. A solicitação foi bem-sucedida e um novo recurso foi criado.",
-        content = @Content(
-                mediaType = MediaType.APPLICATION_JSON_VALUE,
-                schema = @Schema(implementation = Object.class) // Adjust the schema as needed
-        )
-)
-@ApiResponse(
         responseCode = "400",
         description = "Bad Request. Os dados da requisição estão inválidos.",
         content = @Content(

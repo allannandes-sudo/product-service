@@ -7,8 +7,12 @@ import br.com.foursales.product_service.domain.model.ProductStockResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
 import br.com.foursales.product_service.web.annotations.DefaultSwaggerMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,12 +34,28 @@ public interface ProductControllerDoc {
     @DefaultSwaggerMessage
     @GetMapping
     @Operation(summary = "Lista de todos produtos!!")
+    @ApiResponse(
+            responseCode = "200",
+            description = "OK. A solicitação foi bem-sucedida.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ProductResponse.class)
+            )
+    )
     ResponseEntity<List<ProductResponse>> getAllProducts();
 
 
     @DefaultSwaggerMessage
     @GetMapping("/{productId}")
     @Operation(summary = "Busca de produto por productId!!")
+    @ApiResponse(
+            responseCode = "200",
+            description = "OK. A solicitação foi bem-sucedida.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ProductResponse.class)
+            )
+    )
     ResponseEntity<ProductResponse> getProductById(@PathVariable UUID productId);
 
 
@@ -43,6 +63,14 @@ public interface ProductControllerDoc {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cadastrar produto!!")
+    @ApiResponse(
+            responseCode = "201",
+            description = "Created. A solicitação foi bem-sucedida e um novo recurso foi criado.",
+            content = @Content(
+                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                    schema = @Schema(implementation = ProductCreateResponse.class)
+            )
+    )
     ResponseEntity<ProductCreateResponse> createProduct(@RequestBody ProductRequest productRequest);
 
     @DefaultSwaggerMessage
