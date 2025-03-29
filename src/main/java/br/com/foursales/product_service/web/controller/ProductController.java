@@ -1,4 +1,4 @@
-package br.com.foursales.product_service.web;
+package br.com.foursales.product_service.web.controller;
 
 import br.com.foursales.product_service.application.service.ProductService;
 import br.com.foursales.product_service.domain.model.ProductCreateResponse;
@@ -6,7 +6,7 @@ import br.com.foursales.product_service.domain.model.ProductRequest;
 import br.com.foursales.product_service.domain.model.ProductResponse;
 import br.com.foursales.product_service.domain.model.ProductStockResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import br.com.foursales.product_service.web.controller.swagger.ProductControllerDoc;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,12 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@SecurityRequirement(name = "bearerAuth") 
-public class ProductController {
+public class ProductController implements ProductControllerDoc {
 
     private final ProductService productService;
 
@@ -37,27 +36,26 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id)
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponse> getProductById(@PathVariable UUID productId) {
+        return productService.getProductById(productId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductCreateResponse> createProduct(@RequestBody ProductRequest productRequest) {
         var response = productService.createProduct(productRequest);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID productId) {
+        productService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/update-by-name/{name}")
     public ResponseEntity<ProductResponse> updateProductByName(
             @PathVariable String name,
@@ -67,24 +65,10 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
-
-    @GetMapping("/search")
-    public ResponseEntity<List<ProductResponse>> searchProducts(@RequestParam String query) {
-        List<ProductResponse> products = productService.searchProducts(query);
-        return ResponseEntity.ok(products);
-    }
-
-
     @GetMapping("/stock-check")
-    public ResponseEntity<Map<Long, ProductStockResponse>> checkStock(@RequestParam List<Long> productIds) {
-        Map<Long, ProductStockResponse> stockStatus = productService.checkStock(productIds);
+    public ResponseEntity<Map<UUID, ProductStockResponse>> checkStock(@RequestParam List<UUID> productIds) {
+        Map<UUID, ProductStockResponse> stockStatus = productService.checkStock(productIds);
         return ResponseEntity.ok(stockStatus);
-    }
-
-    @PutMapping("/update-stock")
-    public ResponseEntity<Void> updateStock(@RequestBody Map<Long, Integer> stockUpdates) {
-        productService.updateStock(stockUpdates);
-        return ResponseEntity.ok().build();
     }
 
 }

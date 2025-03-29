@@ -10,12 +10,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductUpdateRequest {
+
+    private String description;
     private String category;
     private Double price;
     private Integer stock;
 
-    public ProductUpdateRequest(Integer stock) {
-        this.stock = stock;
-    }
 }
 

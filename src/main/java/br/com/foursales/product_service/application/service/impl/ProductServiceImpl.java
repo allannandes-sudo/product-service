@@ -1,23 +1,27 @@
 package br.com.foursales.product_service.application.service.impl;
 
 import br.com.foursales.product_service.application.service.ProductService;
+import br.com.foursales.product_service.domain.exception.ProductNotFoundException;
 import br.com.foursales.product_service.domain.model.ProductCreateResponse;
 import br.com.foursales.product_service.domain.model.ProductRequest;
 import br.com.foursales.product_service.domain.model.ProductResponse;
 import br.com.foursales.product_service.domain.model.ProductStockResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
+import br.com.foursales.product_service.infrastructure.persistence.entity.ProductEntity;
+import br.com.foursales.product_service.infrastructure.persistence.mapper.ProductMapper;
 import br.com.foursales.product_service.infrastructure.persistence.repository.ProductRepository;
-import br.com.foursales.product_service.infrastructure.persistence.repository.entity.ProductEntity;
-import br.com.foursales.product_service.infrastructure.persistence.repository.mapper.ProductMapper;
 import br.com.foursales.product_service.infrastructure.search.service.ProductSearchService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,52 +36,50 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getAllProducts() {
         return repository.findAll().stream()
+                .filter(product -> product.getStock() > 0)
                 .map(productMapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<ProductResponse> getProductById(Long id) {
-        return repository.findById(id).map(productMapper::toDomain);
+    public Optional<ProductResponse> getProductById(UUID productId) {
+        return repository.findByProductId(productId)
+                .filter(product -> product.getStock() > 0)
+                .map(productMapper::toDomain)
+                .or(() -> {
+                    throw new ProductNotFoundException("Produto não existe ou está com estoque zerado.");
+                });
     }
 
     @Override
     public ProductCreateResponse createProduct(ProductRequest request) {
-        List<ProductEntity> existingProducts = repository.findByNameAndCategory(request.getName(), request.getCategory());
+        boolean productExists = repository.findByNameAndCategory(request.getName(), request.getCategory())
+                .stream()
+                .findAny()
+                .isPresent();
 
-        for (ProductEntity existingProduct : existingProducts) {
-            if (existingProduct.getPrice().equals(request.getPrice()) &&
-                    existingProduct.getStock().equals(request.getStock())) {
-                throw new IllegalArgumentException("Produto já cadastrado com essas informações.");
-            }
+        if (productExists) {
+            throw new ProductNotFoundException("Produto já cadastrado com esse nome e categoria.");
         }
 
-        ProductEntity productEntity;
-        boolean atualizado = false;
-
-        if (!existingProducts.isEmpty()) {
-            productEntity = existingProducts.get(0); // Pega o primeiro produto encontrado
-            productEntity.setStock(productEntity.getStock() + request.getStock()); // Atualiza o estoque
-            productEntity.setPrice(request.getPrice()); // Atualiza o preço
-            atualizado = true;
-        } else {
-            productEntity = productMapper.toEntity(request);
-        }
-
+        var productEntity = productMapper.toEntity(request);
         productEntity = repository.save(productEntity);
         productSearchService.indexProduct(productEntity);
         return new ProductCreateResponse(
                 productMapper.toDomain(productEntity),
-                atualizado ? "Produto já existia. Estoque e preço atualizados!" : "Produto cadastrado com sucesso!"
+                "Produto cadastrado com sucesso!"
         );
     }
 
     @Override
-    public void deleteProduct(Long id) {
-        repository.deleteById(id);
-        productSearchService.deleteProduct(id);
+    @Transactional
+    public void deleteProduct(UUID productId) {
+        log.info("Deletando {}: ", productId);
+        repository.deleteByProductId(productId);
+        log.info("Deletando no  Elasticsearch{}: ", productId);
+        productSearchService.deleteProduct(productId);
+        log.info("Produto deletado com sucesso {}: ", productId);
     }
-
 
 
     @Override
@@ -94,41 +96,47 @@ public class ProductServiceImpl implements ProductService {
         if (updates.getStock() != null) {
             product.setStock(updates.getStock());
         }
+        if (updates.getDescription() != null) {
+            product.setDescription(updates.getDescription());
+        }
 
+
+        product.setUpdateDate(LocalDateTime.now());
         ProductEntity updatedProduct = repository.save(product);
         productSearchService.indexProduct(updatedProduct);
         return productMapper.toDomain(updatedProduct);
     }
 
-    @Override
-    public List<ProductResponse> searchProducts(String query) {
-
-        return productSearchService.searchProducts(query);
-    }
 
     @Override
-    public Map<Long, ProductStockResponse> checkStock(List<Long> productIds) {
-        return repository.findAllById(productIds)
-                .stream()
+    public Map<UUID, ProductStockResponse> checkStock(List<UUID> productIds) {
+        List<ProductEntity> products = repository.findByProductIdIn(productIds);
+
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException("Nenhum dos produtos foi encontrado.");
+        }
+
+        List<UUID> foundProductIds = products.stream()
+                .map(ProductEntity::getProductId)
+                .toList();
+
+        List<UUID> missingProductIds = productIds.stream()
+                .filter(id -> !foundProductIds.contains(id))
+                .toList();
+
+        if (!missingProductIds.isEmpty()) {
+            log.warn("Os seguintes produtos não foram encontrados: " + missingProductIds);
+        }
+
+        return products.stream()
                 .collect(Collectors.toMap(
-                        ProductEntity::getId,
-                        product -> new ProductStockResponse(product.getId(), product.getPrice(), product.getStock())
+                        ProductEntity::getProductId,
+                        product -> new ProductStockResponse(
+                                product.getProductId(),
+                                product.getPrice(),
+                                product.getStock()
+                        )
                 ));
-    }
-
-    @Override
-    public void updateStock(Map<Long, Integer> stockUpdates) {
-        stockUpdates.forEach((productId, quantity) -> {
-            ProductEntity product = repository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + productId));
-
-            if (product.getStock() < quantity) {
-                throw new RuntimeException("Estoque insuficiente para o produto: " + productId);
-            }
-
-            product.setStock(product.getStock() - quantity);
-            repository.save(product);
-        });
     }
 
 }

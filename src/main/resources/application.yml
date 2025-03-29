@@ -53,3 +53,16 @@ spring:
 jwt:
   secret: MINHA_CHAVE_SECRETA_AQUI_UMA_STRING_GRANDE_E_SEGURA
   expiration: 3600000  # 1 hora
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    default-models-expand-depth: -1

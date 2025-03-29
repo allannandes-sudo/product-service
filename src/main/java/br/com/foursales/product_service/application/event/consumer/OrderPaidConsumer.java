@@ -1,7 +1,6 @@
 package br.com.foursales.product_service.application.event.consumer;
 
 import br.com.foursales.product_service.application.event.dto.OrderCanceledEvent;
-import br.com.foursales.product_service.application.event.dto.OrderCreatedEvent;
 import br.com.foursales.product_service.application.event.dto.OrderItemEvent;
 import br.com.foursales.product_service.application.event.dto.OrderPaidEvent;
 import br.com.foursales.product_service.application.event.producer.OrderEventProducer;
@@ -9,8 +8,8 @@ import br.com.foursales.product_service.application.service.ProductService;
 import br.com.foursales.product_service.domain.exception.MessageProcessingException;
 import br.com.foursales.product_service.domain.model.ProductResponse;
 import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
+import br.com.foursales.product_service.infrastructure.persistence.entity.ProductEntity;
 import br.com.foursales.product_service.infrastructure.persistence.repository.ProductRepository;
-import br.com.foursales.product_service.infrastructure.persistence.repository.entity.ProductEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ import java.util.Optional;
 public class OrderPaidConsumer {
 
     private final ProductRepository productRepository;
-    private final ProductService productService; // ⬅️ Adicionamos ProductService para chamar updateProductByName
+    private final ProductService productService; //  Adicionamos ProductService para chamar updateProductByName
     private final OrderEventProducer orderEventProducer; // Publicador de eventos Kafka
     private final ObjectMapper objectMapper;
 

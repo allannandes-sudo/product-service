@@ -20,6 +20,9 @@ public class ProductRequest {
     @NotBlank(message = "A categoria do produto não pode estar vazia")
     private String category;
 
+    @NotBlank(message = "A description do produto não pode estar vazia")
+    private String description;
+
     @NotNull(message = "O preço do produto deve ser informado")
     @Min(value = 0, message = "O preço do produto não pode ser negativo")
     private Double price;

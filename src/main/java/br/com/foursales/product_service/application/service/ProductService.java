@@ -9,16 +9,16 @@ import br.com.foursales.product_service.domain.model.ProductUpdateRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ProductService {
+
     List<ProductResponse> getAllProducts();
-    Optional<ProductResponse> getProductById(Long id) ;
     ProductCreateResponse createProduct(ProductRequest productRequest) ;
-    void deleteProduct(Long id);
+    void deleteProduct(UUID productId);
     ProductResponse updateProductByName(String name, ProductUpdateRequest productUpdateRequest);
-    List<ProductResponse> searchProducts(String query);
-    Map<Long, ProductStockResponse> checkStock(List<Long> productIds);
+    Optional<ProductResponse> getProductById(UUID productId);
+    Map<UUID, ProductStockResponse> checkStock(List<UUID> productIds);
 
 
-    void updateStock(Map<Long, Integer> stockUpdates);
 }

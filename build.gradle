@@ -9,6 +9,11 @@ plugins {
 
 ext {
 	set('junit', "4.13.1")
+	set('jjwt', "0.11.5")
+	set('springdoc', "2.8.4")
+	set('mapstruct', "1.5.5.Final")
+	set('mapstructBinding', "0.2.0")
+	set('feing', "3.1.0")
 }
 
 group = 'br.com.foursales'
@@ -33,15 +38,15 @@ dependencies {
 
 
 	// Autenticação JWT
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation "io.jsonwebtoken:jjwt-api:${jjwt}"
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt}"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt}"
 
 	// Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdoc}"
 
 	// Feign Client para comunicação entre microsserviços
-	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:3.1.0")
+	implementation "org.springframework.cloud:spring-cloud-starter-openfeign:${feing}"
 
 	// Banco de Dados MySQL
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -50,16 +55,19 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 
 	// Elasticsearch
+//	implementation 'org.springframework.data:spring-data-elasticsearch:4.4.0'
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+//	implementation 'co.elastic.clients:elasticsearch-java:7.17.0'
+	implementation 'co.elastic.clients:elasticsearch-java:8.15.0'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// MapStruct para mapeamento de DTOs
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+	implementation "org.mapstruct:mapstruct:${mapstruct}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstruct}"
+	annotationProcessor "org.projectlombok:lombok-mapstruct-binding:${mapstructBinding}"
 
 	// Testes
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
