@@ -3,15 +3,19 @@ package br.com.foursales.product_service.infrastructure.search;
 import co.elastic.clients.json.JsonpDeserializer;
 import co.elastic.clients.json.JsonpMapper;
 import co.elastic.clients.json.JsonpSerializable;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.json.stream.JsonGenerator;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 @Getter
 @Setter
 @Document(indexName = "products")
+@JsonInclude(NON_NULL)
 public class ProductDocument implements JsonpSerializable {
 
     @Id

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
+    @ExceptionHandler({ProductNotFoundException.class})
     public ResponseEntity<ErrorDetail> handleProductNotFoundException(ProductNotFoundException ex) {
         ErrorDetail errorResponse = new ErrorDetail(
                 String.valueOf(HttpStatus.BAD_REQUEST.value()),
@@ -20,7 +20,8 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(SecurityException.class)
+
+    @ExceptionHandler({SecurityException.class})
     public ResponseEntity<ErrorDetail> handleSecurityException(SecurityException ex) {
         ErrorDetail errorResponse = new ErrorDetail(
                 String.valueOf(HttpStatus.UNAUTHORIZED.value()),
@@ -28,5 +29,15 @@ public class GlobalExceptionHandler {
                 ex.getMessage()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler({BusinessException.class})
+    public ResponseEntity<ErrorDetail> handleProductNotFoundException(BusinessException ex) {
+        ErrorDetail errorResponse = new ErrorDetail(
+                String.valueOf(HttpStatus.BAD_REQUEST.value()),
+                HttpStatus.BAD_REQUEST.name(),
+                ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
