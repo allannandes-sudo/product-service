@@ -24,6 +24,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class ProductServiceImpl implements ProductService {
         return repository.findAll().stream()
                 .filter(product -> product.getStock() > 0)
                 .map(productMapper::toDomain)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override

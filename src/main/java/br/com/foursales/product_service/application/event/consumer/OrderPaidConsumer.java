@@ -26,8 +26,8 @@ import java.util.Optional;
 public class OrderPaidConsumer {
 
     private final ProductRepository productRepository;
-    private final ProductService productService; //  Adicionamos ProductService para chamar updateProductByName
-    private final OrderEventProducer orderEventProducer; // Publicador de eventos Kafka
+    private final ProductService productService;
+    private final OrderEventProducer orderEventProducer;
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "order.paid", groupId = "product-service-group")
@@ -52,7 +52,7 @@ public class OrderPaidConsumer {
         boolean insufficientStock = false;
 
         for (OrderItemEvent item : event.getItems()) {
-            Optional<ProductEntity> productOpt = productRepository.findById(item.getProductId());
+            Optional<ProductEntity> productOpt = productRepository.findByProductId(item.getProductId());
 
             if (productOpt.isPresent()) {
                 ProductEntity product = productOpt.get();
@@ -75,7 +75,7 @@ public class OrderPaidConsumer {
             );
         } else {
             for (OrderItemEvent item : event.getItems()) {
-                ProductEntity product = productRepository.findById(item.getProductId()).orElseThrow();
+                ProductEntity product = productRepository.findByProductId(item.getProductId()).orElseThrow();
 
                 // Criando o objeto ProductUpdateRequest
                 ProductUpdateRequest request = new ProductUpdateRequest();
